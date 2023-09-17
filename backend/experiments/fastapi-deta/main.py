@@ -1,3 +1,4 @@
+import random
 from fastapi import FastAPI
 from langchain.chat_models import ChatOpenAI
 # from langchain.document_loaders import AsyncChromiumLoader
@@ -5,7 +6,7 @@ from langchain.chat_models import ChatOpenAI
 from langchain.document_loaders import AsyncHtmlLoader
 from langchain.document_transformers import Html2TextTransformer
 import typer
-from simulate import dialogue
+# from simulate import dialogue
 
 # app = FastAPI()
 app = typer.Typer()
@@ -18,15 +19,6 @@ topic = ("Round Earth", "Flat Earth")
 
 def main(name: str):
     print(f"Hello {name}")
-
-# @app.get("/")
-# def read_root():
-#     return {"Hello": "World"}
-
-
-# @app.get("/items/{item_id}")
-# def read_item(item_id: int):
-#     return {"item_id": item_id}
 
 # @app.get("/query")
 def get_response(message):
@@ -57,8 +49,8 @@ def document_parser(url):
         if word == "*":
             passage += ""
         if "\n" in word:
-            print(word)
-            print("*" * 100)
+            # print(word)
+            # print("*" * 100)
 
             slash = False
             newWord = ""
@@ -75,16 +67,20 @@ def document_parser(url):
         else:
             word = word.replace("\\n", "")
             passage += word + " "
-    print(passage)
+    # print(passage)
     return passage
 
 # Creates a summary of an article in a differing polarization
 # @app.get("/summarize")
 @app.command()
-def summarize(level, passage):
+def summarize(level):
     # context = "Assume there exists a polarization scale from -5 to 5 such that -5 is conservative, and 5 is liberal. Assume criticism is polarizing. "
     # context += "Based on this scale, summarize the following article to be " + level + " level on this scale: "
     # context += passage
+    passageNum = random.randint(0, 2)
+    passage = sources[passageNum]
+    passage = document_parser(passage)
+
     level = int(level)
     adj = ""
     if abs(level) == 1:
@@ -105,7 +101,7 @@ def summarize(level, passage):
         side = "conservative"
 
     context = "Summarize the following passage in a " + adj + " polarizing manner, leaning " + side + ": "
-    print(context)
+    # print(context)
     context += passage
 
 
@@ -114,7 +110,9 @@ def summarize(level, passage):
 
     # context = "Summarize the following passage in a heavily polarized manner from the prespective of someone who believes the Earth is flat: "
     # context += passage
-    return chat.predict(context)
+    summary = chat.predict(context)
+    print(summary)
+    return summary
 
 # def rate_sources():
 #     for url in sources:
